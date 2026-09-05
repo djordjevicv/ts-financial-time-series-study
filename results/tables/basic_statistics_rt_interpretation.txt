@@ -1,0 +1,3 @@
+Skewness is 0.134847 (test statistic 2.69638 versus critical values +/-1.95996), so the skewness test rejects symmetry and indicates statistically significant positive (right) asymmetry.
+Kurtosis is 16.6398, giving excess kurtosis of 13.6398 (test statistic 136.37 versus critical values +/-1.95996). The kurtosis test rejects Normal kurtosis; the positive excess supports a leptokurtic distribution with heavy tails relative to the Normal distribution.
+The Jarque-Bera statistic is 18604, above its 5.99 critical value. The test rejects Normality at the 5% level, providing evidence against a Normal return distribution.
