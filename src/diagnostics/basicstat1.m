@@ -7,7 +7,7 @@ alfa=0.05;
 step=2;
 %quantile chi^2_{0.95}
 z=chis95(step);
-zn=-norminv(alfa/2,0,1);
+zn=sqrt(2)*erfcinv(alfa);
     niz=r;
     m=momenat(niz,1);
     s2=centralni(niz,2);

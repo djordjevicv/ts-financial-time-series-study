@@ -14,7 +14,7 @@ for i=2:m
     tniz=[tniz;tr];
 end
 alfa=0.05;
-z=-norminv(alfa/2,0,1);
+z=sqrt(2)*erfcinv(alfa);
 
 plot(y,'g*');
 hip=zeros(m,1);
