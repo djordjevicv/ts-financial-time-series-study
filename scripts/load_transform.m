@@ -48,4 +48,43 @@ end
 P = belex(:);
 fprintf('Loaded %d BELEX price observations.\n', numel(P));
 
-clear belex loadedData dataFile repositoryRoot scriptPath;
+returnsFigure = figure('Visible', 'off');
+[Rt, Gt, rt] = returns(P);
+close(returnsFigure);
+
+expectedReturnCount = numel(P) - 1;
+if any([numel(Rt), numel(Gt), numel(rt)] ~= expectedReturnCount)
+    error('BELEX:InvalidReturnLength', ...
+        'Each return series must contain exactly %d observations.', ...
+        expectedReturnCount);
+end
+
+if any(~isfinite(Rt)) || any(~isfinite(Gt)) || any(~isfinite(rt))
+    error('BELEX:NonfiniteReturn', ...
+        'Calculated return series contain NaN or Inf values.');
+end
+
+figuresDirectory = fullfile(repositoryRoot, 'results', 'figures');
+if exist(figuresDirectory, 'dir') ~= 7
+    mkdir(figuresDirectory);
+end
+
+priceFigure = figure;
+plot(1:numel(P), P);
+title('BELEX Prices');
+xlabel('Observation');
+ylabel('Price');
+grid on;
+saveas(priceFigure, fullfile(figuresDirectory, 'belex_prices.png'));
+
+logReturnFigure = figure;
+plot(2:numel(P), rt);
+title('BELEX Log Returns');
+xlabel('Observation');
+ylabel('Log return');
+grid on;
+saveas(logReturnFigure, ...
+    fullfile(figuresDirectory, 'belex_log_returns.png'));
+
+clear belex dataFile expectedReturnCount figuresDirectory loadedData ...
+    logReturnFigure priceFigure repositoryRoot returnsFigure scriptPath;
