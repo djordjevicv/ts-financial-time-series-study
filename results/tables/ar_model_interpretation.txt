@@ -1,0 +1,14 @@
+PACFAR tested AR(1) to AR(8). The highest-lag coefficient was significant for orders [1 2 3 8], so the largest of them, AR(8), was selected. Significant log-return ACF lags [13 14 15 16 17] from the price-versus-return stage lie beyond the largest candidate order and are not modeled by this AR specification.
+Selected AR(8) coefficients:
+  phi_8 = 0.0568993 (SE 0.0204816, t = 2.778, significant)
+  phi_7 = 0.00637494 (SE 0.0214417, t = 0.2973, not significant)
+  phi_6 = 0.00605503 (SE 0.0214624, t = 0.2821, not significant)
+  phi_5 = -0.0183812 (SE 0.0214925, t = -0.8552, not significant)
+  phi_4 = 0.0382957 (SE 0.0214914, t = 1.782, not significant)
+  phi_3 = -0.0594073 (SE 0.0214585, t = -2.768, significant)
+  phi_2 = 0.0600852 (SE 0.0214213, t = 2.805, significant)
+  phi_1 = 0.309607 (SE 0.0204555, t = 15.14, significant)
+  phi_0 = -8.94297e-05 (SE 0.000266724, t = -0.3353, not significant)
+Lag coefficients [8 3 2 1] are significant at the 5% level; lags [7 6 5 4] are not. PACFAR tests only the highest lag, so the full AR(8) is kept and the insignificant coefficients are reported rather than removed.
+Ljung-Box test on the residuals: Q = 3.29521 with 10 lags and 1 degree(s) of freedom, not above the critical value 3.84. The residuals show no significant remaining autocorrelation, so AR(8) is adequate for the conditional mean.
+Individually significant residual ACF lags (1 to 20): 14.
