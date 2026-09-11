@@ -1,0 +1,9 @@
+function res=fmlGARCH(a,x,m,s)
+s2=s2sequenceGARCH(a,x,m,s);
+a2=a.^2;
+c=max(m,s);
+T=size(a,1);
+a2t=a2(c+1:T);
+s2t=s2(c+1:T);
+pom=a2t./s2t+log(s2t);
+res=0.5*sum(pom);

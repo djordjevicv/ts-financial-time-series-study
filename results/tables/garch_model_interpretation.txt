@@ -1,0 +1,8 @@
+GARCH(1,1) estimates (Direct GARCHcoef):
+  alpha_1 = 0.243878
+  alpha_0 = 4.97277e-06
+  beta_1 = 0.746063
+GARCHcoef on a reached negative log-likelihood -9827.1863; the percent-scaled refit reached -9827.1871 on the same scale. The direct estimate is kept because the refit did not improve the likelihood.
+Persistence sum(alpha_i) + sum(beta_j) = 0.989941, so volatility shocks decay with a half-life of about 68.6 observations. The implied unconditional variance is 0.000494366, compared with the sample variance 0.000169445 of the AR residuals.
+adequateGARCH: Ljung-Box Q = 15.5824 on the standardized residuals a./sqrt(s2) with 8 lags, above the 15.51 critical value. The GARCH(1,1) model is not adequate by the course criterion; its variance forecasts should be read with caution.
+Supplementary ARCHeffect on the standardized residuals: Q = 11.9862, not above 15.51 (compared with Q = 831.491 before the GARCH fit), so no significant ARCH effect remains.

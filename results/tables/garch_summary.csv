@@ -1,0 +1,2 @@
+m,s,EstimateSource,NegLogLikelihoodDirect,NegLogLikelihoodRescaled,Persistence,UnconditionalVariance,ResidualSampleVariance,HalfLife,AdequacyLagCount,AdequacyAlpha,AdequacyQ,AdequacyCriticalValue,Adequate,StandardizedSquaredQ,StandardizedSquaredCriticalValue,RemainingARCH
+1,1,Direct GARCHcoef,-9827.18631507711,-9827.18707885508,0.989941115937064,0.000494366289009266,0.000169445055110346,68.5617965815879,8,0.05,15.5824288606697,15.51,0,11.9862119034008,15.51,0
