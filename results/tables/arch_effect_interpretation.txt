@@ -1,2 +1,3 @@
 ARCH test on the squared AR(8) residuals: Q = 831.491 with 8 lags, above the 15.51 critical value at alpha = 0.05. The squared residuals are autocorrelated, so the ARCH effect is statistically significant and the conditional variance is modeled with GARCH.
 12 of 20 squared-residual ACF lags are individually significant: [1 2 3 4 5 6 7 8 9 14 17 20].
+The PACF of the squared residuals points to ARCH(8) (orders up to 8 tested). A pure ARCH model of that order needs 9 parameters, so GARCH(1,1) is used instead: it represents the same persistence with three.
