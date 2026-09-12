@@ -3,8 +3,8 @@
 ## Transforming prices into returns
 
 The data begin as a vector of BELEX prices, `P`. Each price is a level, so it
-depends partly on the previous price. For time-series modeling, the course
-function converts consecutive prices into three types of return:
+depends partly on the previous price. For time-series modeling, `returns.m`
+converts consecutive prices into three types of return:
 
 \[
 G_t = \frac{P_{t+1}}{P_t}, \qquad
@@ -68,9 +68,12 @@ detectable autocorrelation and a clearly non-Normal distribution.
 
 ## AR model for the conditional mean
 
-The AR model is fitted to the log returns `rt`. With 2399 returns, `PACFAR`
-tries AR(1) to AR(8), because `ceil(log(2399)) = 8`, and keeps the largest
-order whose highest-lag coefficient is significant at the 5% level:
+The AR model is fitted to the log returns `rt`. `PACFAR` fits AR(1), AR(2),
+... by least squares and reads the PACF as the highest-lag coefficient of each
+fit. With 2399 returns it tests up to AR(8), because `ceil(log(2399)) = 8`.
+The criterion for the order is that the PACF is nonzero at the order and
+zero at every larger lag, so the order is the largest candidate with a
+significant highest-lag coefficient:
 
 | Candidate order | Highest-lag coefficient | t-ratio | Significant |
 | ---: | ---: | ---: | :---: |
@@ -81,9 +84,15 @@ order whose highest-lag coefficient is significant at the 5% level:
 | 5 | -0.015019 | -0.73 | no |
 | 6 | 0.016963 | 0.83 | no |
 | 7 | 0.023915 | 1.17 | no |
-| 8 | 0.056899 | 2.78 | yes |
+| 8 | 0.056899 | 2.78 | **yes, the largest** |
 
-The selected model is therefore AR(8). Its least-squares estimates are:
+The selected model is therefore **AR(8)**. The PACF is significant again at
+lag 8 after four insignificant orders, so a rule that stopped at the first
+insignificant order would have given AR(3). That AR(3) does not satisfy the
+criterion, because its PACF is not zero at every larger lag. The selection
+table is saved in `ar_order_selection.csv` with both orders marked.
+
+The least-squares estimates of AR(8) are:
 
 | Term | Estimate | Standard error | t-ratio | Significant |
 | --- | ---: | ---: | ---: | :---: |
@@ -99,20 +108,27 @@ The selected model is therefore AR(8). Its least-squares estimates are:
 
 The first lag dominates: about 31% of the latest log return carries over to the
 next conditional mean. Lags 2, 3, and 8 are also significant, while lags 4 to
-7 are not. `PACFAR` tests only the highest lag, so the full AR(8) is kept and
-the insignificant coefficients are reported rather than removed. The constant
-is not significant, which matches the Stage 3 finding that the mean return is
-close to zero.
+7 are not. The PACF criterion tests only the highest lag, so the full AR(8) is
+kept and the insignificant coefficients are reported rather than removed. The
+constant is not significant, which matches the Stage 3 finding that the mean
+return is close to zero.
 
 `adequateAR` tests the residuals `a` with a Ljung-Box statistic over 10 lags.
-It subtracts one degree of freedom for each nonzero coefficient, including
-the constant, so only `10 - 9 = 1` degree of freedom remains. The statistic is
-`Q = 3.295`, below the critical value `3.84`, so AR(8) is adequate by the course
-criterion. This test covers only the first 10 residual lags. Individually, one
-of the first 20 residual ACF lags (lag 14) is significant, and the log-return
-ACF lags 13 to 17 from Stage 2 lie beyond the largest order that `PACFAR`
-considers. The AR(8) model captures the short-lag dependence but not that
-longer-lag pattern.
+The statistic is `Q = 3.295`, below the critical value, so **AR(8) is
+adequate** for the conditional mean. The degrees of freedom depend on how the
+fitted parameters are counted:
+
+| Count of fitted parameters | g | Degrees of freedom | Critical value | Decision |
+| --- | ---: | ---: | ---: | --- |
+| `adequateAR`: all nonzero coefficients | 9 | 1 | 3.84 | adequate |
+| Parameters significantly different from zero | 4 | 6 | 12.59 | adequate |
+
+Both counts give the same decision, and counting only the significant
+parameters leaves a wide margin. The test covers only the first 10 residual
+lags. Individually, one of the first 20 residual ACF lags (lag 14) is
+significant, and the log-return ACF lags 13 to 17 from Stage 2 lie beyond the
+largest order that `PACFAR` considers. The AR(8) model captures the short-lag
+dependence but not that longer-lag pattern.
 
 ## ARCH effect in the AR residuals
 
@@ -122,12 +138,21 @@ statistically significant. Twelve of the first 20 squared-residual ACF lags are
 individually significant (lags 1 to 9, 14, 17, and 20). Large residuals tend to
 follow large residuals, which is the volatility clustering visible in the
 log-return plot. Volatility clustering is also consistent with the heavy tails
-found in Stage 3. Because the effect is significant, the pipeline fits a GARCH
-model.
+found in Stage 3. Because the effect is significant, the pipeline models the
+conditional variance.
+
+The squared residuals satisfy an AR-like relation, `a2(t) ~ alpha_0 +
+sum(alpha_i a2(t-i))`, so the PACF of `a.^2` indicates the ARCH order the data
+support. Applied to the squared AR(8) residuals it points to **ARCH(8)**: the
+highest-lag coefficient is significant at orders 1, 2, 3, 5, 6 and 8, the
+largest being 8 (`0.0450`, t = 2.19). A pure ARCH(8) would need nine
+parameters. GARCH(1,1) represents the same persistence with three, which is
+why it is the model fitted in Stage 6. The candidate orders are in
+`arch_order_pacf.csv`.
 
 ## GARCH(1,1) conditional variance
 
-GARCH(1,1) was fitted to the AR residuals with `GARCHcoef`:
+GARCH(1,1) was fitted to the AR(8) residuals with `GARCHcoef`:
 
 \[
 \sigma_t^2 = \alpha_0 + \alpha_1 a_{t-1}^2 + \beta_1 \sigma_{t-1}^2 .
@@ -157,7 +182,7 @@ sample. Treat it as an imprecise figure.
 
 `adequateGARCH` applies the Ljung-Box test to the standardized residuals
 `a./sqrt(s2)` with 8 lags. The statistic is `Q = 15.582`, just above the
-critical value `15.51`, so GARCH(1,1) is **not adequate** by the course
+critical value `15.51`, so GARCH(1,1) is **not adequate** by this
 criterion. The margin is small (about 0.5%). As a supplementary check, the
 script applies `ARCHeffect` to the standardized residuals. It gives
 `Q = 11.99`, below `15.51`, compared with `831.49` before the GARCH fit. The
@@ -200,19 +225,24 @@ variance then rises steadily toward the unconditional level, reaching
 `1.990e-4` at `h = 20`. Given the 69-observation half-life, it is still far
 from that level. The return intervals use
 `rForecast +/- 1.96*sqrt(sigma2Forecast)` and are a **Gaussian conditional
-approximation**. Stage 3 rejected Normality, and the GARCH model narrowly
-failed its adequacy test, so these intervals are an approximation.
+approximation**. Each one uses only the conditional variance of the return at
+that step, so it is a one-step interval evaluated at every horizon: it does
+not accumulate the forecast error of the steps in between, and for `h > 1` it
+is narrower than a full h-step forecast interval. Stage 3 also rejected
+Normality, and the GARCH model narrowly failed its adequacy test, so these
+bounds are indicative rather than exact.
 
 ## Summary
 
 - Log returns remove most of the price persistence. Short-lag dependence
-  remains and is modeled by AR(8), which passes the course adequacy test for
-  the conditional mean.
+  remains and is modeled by AR(8), the order the PACF criterion selects. It
+  passes the adequacy test for the conditional mean under either way of
+  counting the fitted parameters.
 - The squared AR residuals show a strong ARCH effect (`Q = 831.49` against
   `15.51`).
 - GARCH(1,1) captures this effect: no significant ARCH effect remains in the
   standardized residuals. Volatility is highly persistent (`0.9899`). The model
-  narrowly fails the course adequacy test on the standardized residuals
+  narrowly fails the adequacy test on the standardized residuals
   (`Q = 15.582` against `15.51`).
 - AR forecasts give conditional-mean log returns and a nearly flat
   reconstructed price path. GARCH forecasts give conditional variances that
